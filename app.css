@@ -4,7 +4,9 @@ body {
   color: #FAFAFA;
   text-transform: uppercase;
 }
-
+body h1 {
+  color: #444;
+}
 .scoreboard {
   background: #333;
   width: 700px;

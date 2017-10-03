@@ -1,6 +1,6 @@
 class Model 
 {
-  constructor () 
+  constructor() 
   {
     this.players = 
     [
@@ -20,44 +20,51 @@ class Model
         id: 3,
       },
     ];
-     this.totalScore = 0;
-     this.inputValue = "";     
-     this.callback = null;
+    this.totalScore = 0;
+    this.inputValue = "";     
+    this.callback = null;
   }
-
   subscribe(render) 
   {
-     this.callback = render;
+    this.callback = render;
   }
-
   notify() 
   {
-     this.callback();
+    this.callback();
   }
-
   addPlayer(name) 
   {
     this.players.push(
-      {
-       name: name,
-       score: 0,
-       id: this.players.length + 1,
-       
-      });
+    {
+      name: name,
+      score: 0,
+      id: this.players.length + 1,
+    });
     this.inputValue = "";
     this.notify();
- }
-
- suma(players)
- {
-   let suma = 0;
-   for(let i in players)
-   {
+  }
+  setTotalScore(players)
+  {
+    let suma = 0;
+    for(let i in players)
+    {
       suma += players[i].score;
-   }
-   this.totalScore = suma;
-   return this.totalScore;
- }
+    }
+    this.totalScore = suma;
+  }
+  decrement(id)
+  {
+    if(this.players[id-1].score > 0)
+    {
+      this.players[id-1].score--;
+    }
+    this.notify();
+  }
+  increment(id)
+  {
+    this.players[id-1].score++;
+    this.notify();
+  }
 }
 
 const Header = ({model}) => 
@@ -70,8 +77,9 @@ const Header = ({model}) =>
   )
 }
 
-const Stats = ({ model }) => 
+const Stats = ({model}) => 
 {
+  model.setTotalScore(model.players);
   return (
     <table className="stats">
       <tbody>
@@ -81,7 +89,7 @@ const Stats = ({ model }) =>
         </tr>
         <tr>
           <td>Total Points:</td>
-          <td>{model.suma(model.players)}</td>
+          <td>{model.totalScore}</td>
         </tr>
       </tbody>
     </table>
@@ -98,7 +106,8 @@ const Stopwatch = () =>
     </div>
   )
 }
-const PlayerList = ({ model }) => 
+
+const PlayerList = ({model}) => 
 {
   const list = model.players.map((item, index) => 
   {
@@ -106,7 +115,17 @@ const PlayerList = ({ model }) =>
       <div key={item.id} className="player">
         <label className="player-name">{item.name}</label>
         <div className="player-score counter">
-          <button className="counter-action decrement">-</button><label className="counter-score">{item.score}</label><button className="counter-action increment">+</button>
+          <button className="counter-action decrement" onClick={e => {
+              e.preventDefault();
+              model.decrement(item.id);
+            }}
+          >-</button>
+          <label className="counter-score">{item.score}</label>
+          <button className="counter-action increment" onClick={e => {
+              e.preventDefault();
+              model.increment(item.id);
+            }}
+          >+</button>
         </div>
       </div>
     );
@@ -122,15 +141,18 @@ const PlayerForm = () =>
 {
   return (
     <div className="add-player-form">
-    <form onSubmit={e => {
-               e.preventDefault();
-               model.addPlayer(model.inputValue);
-      }}
-    >
-      <input type="text" placeholder="Enter a Name" value={model.inputValue} onChange={e => {(model.inputValue = e.target.value);
-      model.notify()}} />
-      <input type="submit" value ="Add Player"/>
-    </form>
+      <form onSubmit={e => {
+          e.preventDefault();
+          model.addPlayer(model.inputValue);
+        }}
+      >
+        <input type="text" placeholder="Enter a Name" value={model.inputValue} onChange={e => {
+            model.inputValue = e.target.value;
+            model.notify()
+          }}
+        />
+        <input type="submit" value ="Add Player"/>
+      </form>
     </div>
   )
 }
@@ -151,8 +173,8 @@ let model = new Model();
 
 let render = () => 
 {
-  ReactDOM.render(<Application title="Scoreboard"
-  model={model} />, document.getElementById('container'));
+  ReactDOM.render(<Application title="Scoreboard" model={model} />, 
+  document.getElementById('container'));
 };
 
 model.subscribe(render); 
