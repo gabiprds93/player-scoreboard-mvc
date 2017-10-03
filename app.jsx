@@ -43,6 +43,11 @@ class Model
     this.inputValue = "";
     this.notify();
   }
+  removePlayer(player) 
+  {
+    this.players = this.players.filter(item => item !== player);
+    this.notify();
+  }
   setTotalScore(players)
   {
     let suma = 0;
@@ -113,7 +118,7 @@ const PlayerList = ({model}) =>
   {
     return (
       <div key={item.id} className="player">
-        <label className="player-name">{item.name}</label>
+        <label className="player-name" onDoubleClick={() => model.removePlayer(item)}>{item.name}</label>
         <div className="player-score counter">
           <button className="counter-action decrement" onClick={e => {
               e.preventDefault();
